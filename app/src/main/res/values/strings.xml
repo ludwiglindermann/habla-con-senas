@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HablaConSeñas</string>
+
+    <!-- login -->
+    <string name="login_titulo">HablaConSeñas</string>
+    <string name="login_subtitulo">Comunícate con quienes te rodean, a tu manera</string>
+    <string name="login_email">Correo electrónico</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_boton">Ingresar</string>
+    <string name="login_sin_cuenta">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="login_olvido_password">¿Olvidaste tu contraseña?</string>
+    <string name="login_error_credenciales">Correo o contraseña incorrectos</string>
+
+    <!-- registro -->
+    <string name="registro_titulo">Crea tu cuenta</string>
+    <string name="registro_nombre">Nombre completo</string>
+    <string name="registro_email">Correo electrónico</string>
+    <string name="registro_password">Contraseña</string>
+    <string name="registro_confirmar_password">Confirmar contraseña</string>
+    <string name="registro_nivel_auditivo">Nivel de pérdida auditiva</string>
+    <string name="registro_modo_comunicacion">Modo de comunicación preferido</string>
+    <string name="registro_funciones_accesibilidad">Funciones de accesibilidad a activar</string>
+    <string name="registro_terminos">Acepto los términos y condiciones</string>
+    <string name="registro_boton">Registrarme</string>
+    <string name="registro_volver_login">¿Ya tienes cuenta? Inicia sesión</string>
+    <string name="registro_error_campos">Completa todos los campos obligatorios</string>
+    <string name="registro_error_password">Las contraseñas no coinciden</string>
+    <string name="registro_error_terminos">Debes aceptar los términos y condiciones</string>
+    <string name="registro_error_existente">Ya existe una cuenta registrada con ese correo</string>
+    <string name="registro_exito">Cuenta creada con éxito, ya puedes iniciar sesión</string>
+
+    <!-- recuperar contraseña -->
+    <string name="recuperar_titulo">Recuperar contraseña</string>
+    <string name="recuperar_descripcion">Ingresa tu correo y te enviaremos las instrucciones para recuperar tu contraseña</string>
+    <string name="recuperar_boton">Enviar instrucciones</string>
+    <string name="recuperar_volver_login">Volver a inicio de sesión</string>
+    <string name="recuperar_confirmacion">Si el correo existe, te enviamos las instrucciones para recuperar tu contraseña</string>
+
+    <!-- inicio -->
+    <string name="inicio_bienvenida">Hola de nuevo</string>
+    <string name="inicio_subtitulo">¿Qué necesitas hacer hoy?</string>
+    <string name="inicio_escribir_titulo">Escribir para que te escuchen</string>
+    <string name="inicio_escribir_descripcion">Escribe un mensaje y tu celular lo dice en voz alta por ti</string>
+    <string name="inicio_escuchar_titulo">Escuchar y transcribir</string>
+    <string name="inicio_escuchar_descripcion">Próximamente: convierte lo que te dicen en texto en pantalla</string>
+    <string name="inicio_cerrar_sesion">Cerrar sesión</string>
+
+    <!-- escribir -->
+    <string name="escribir_titulo">Escribir para que te escuchen</string>
+    <string name="escribir_campo">Escribe tu mensaje aquí</string>
+    <string name="escribir_velocidad">Velocidad de la voz</string>
+    <string name="escribir_boton_reproducir">Reproducir en voz alta</string>
+    <string name="escribir_boton_detener">Detener</string>
+    <string name="escribir_error_vacio">Escribe un mensaje antes de reproducirlo</string>
+    <string name="escribir_volver">Volver al inicio</string>
+</resources>
