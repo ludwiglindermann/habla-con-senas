@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.duoc.hablaconsenas.R
+import com.duoc.hablaconsenas.util.ejecutarSeguro
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -57,6 +58,7 @@ fun EscribirScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val errorVacio = stringResource(R.string.escribir_error_vacio)
+    val errorReproduccion = stringResource(R.string.escribir_error_reproduccion)
 
     // se crea el motor de texto a voz cuando entramos a la pantalla y se libera al salir
     var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
@@ -64,7 +66,14 @@ fun EscribirScreen(
         lateinit var instancia: TextToSpeech
         instancia = TextToSpeech(context) { estado ->
             if (estado == TextToSpeech.SUCCESS) {
-                instancia.language = Locale("es", "CL")
+                // si el idioma configurado no esta disponible en el dispositivo,
+                // se usa el idioma por defecto del sistema como respaldo
+                val resultadoIdioma = instancia.setLanguage(Locale("es", "CL"))
+                if (resultadoIdioma == TextToSpeech.LANG_MISSING_DATA ||
+                    resultadoIdioma == TextToSpeech.LANG_NOT_SUPPORTED
+                ) {
+                    instancia.setLanguage(Locale.getDefault())
+                }
             }
         }
         textToSpeech = instancia
@@ -125,8 +134,16 @@ fun EscribirScreen(
                         if (mensaje.isBlank()) {
                             scope.launch { snackbarHostState.showSnackbar(errorVacio) }
                         } else {
-                            textToSpeech?.setSpeechRate(velocidad)
-                            textToSpeech?.speak(mensaje, TextToSpeech.QUEUE_FLUSH, null, "mensajeHablaConSenas")
+                            // ejecutarSeguro es la funcion de orden superior de
+                            // util/Validaciones.kt: corre la reproduccion dentro de un
+                            // try/catch, por si el motor de voz falla en el dispositivo
+                            val reproducido = ejecutarSeguro {
+                                textToSpeech?.setSpeechRate(velocidad)
+                                textToSpeech?.speak(mensaje, TextToSpeech.QUEUE_FLUSH, null, "mensajeHablaConSenas")
+                            }
+                            if (!reproducido) {
+                                scope.launch { snackbarHostState.showSnackbar(errorReproduccion) }
+                            }
                         }
                     },
                     modifier = Modifier

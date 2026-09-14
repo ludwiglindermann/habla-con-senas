@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.duoc.hablaconsenas.R
 import com.duoc.hablaconsenas.ui.components.CampoTexto
+import com.duoc.hablaconsenas.util.esCorreoValido
 
 // pantalla de recuperar contraseña
 @Composable
@@ -37,6 +38,7 @@ fun RecuperarPasswordScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var solicitudEnviada by remember { mutableStateOf(false) }
+    var mostrarError by remember { mutableStateOf(false) }
 
     Scaffold { paddingValues ->
         Column(
@@ -68,15 +70,27 @@ fun RecuperarPasswordScreen(
             if (!solicitudEnviada) {
                 CampoTexto(
                     valor = email,
-                    onValorChange = { email = it },
+                    onValorChange = {
+                        email = it
+                        mostrarError = false
+                    },
                     etiqueta = stringResource(R.string.login_email),
-                    tipoTeclado = KeyboardType.Email
+                    tipoTeclado = KeyboardType.Email,
+                    esError = mostrarError,
+                    mensajeError = if (mostrarError) stringResource(R.string.recuperar_error_formato_correo) else null
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    onClick = { if (email.isNotBlank()) solicitudEnviada = true },
+                    onClick = {
+                        // esCorreoValido() es la funcion de extension de util/Validaciones.kt
+                        if (email.esCorreoValido()) {
+                            solicitudEnviada = true
+                        } else {
+                            mostrarError = true
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)

@@ -11,6 +11,7 @@
     <string name="login_sin_cuenta">¿No tienes cuenta? Regístrate aquí</string>
     <string name="login_olvido_password">¿Olvidaste tu contraseña?</string>
     <string name="login_error_credenciales">Correo o contraseña incorrectos</string>
+    <string name="login_error_formato_correo">Ingresa un correo electrónico válido</string>
 
     <!-- registro -->
     <string name="registro_titulo">Crea tu cuenta</string>
@@ -28,6 +29,7 @@
     <string name="registro_error_password">Las contraseñas no coinciden</string>
     <string name="registro_error_terminos">Debes aceptar los términos y condiciones</string>
     <string name="registro_error_existente">Ya existe una cuenta registrada con ese correo</string>
+    <string name="registro_error_formato_correo">Ingresa un correo electrónico válido</string>
     <string name="registro_exito">Cuenta creada con éxito, ya puedes iniciar sesión</string>
 
     <!-- recuperar contraseña -->
@@ -36,6 +38,7 @@
     <string name="recuperar_boton">Enviar instrucciones</string>
     <string name="recuperar_volver_login">Volver a inicio de sesión</string>
     <string name="recuperar_confirmacion">Si el correo existe, te enviamos las instrucciones para recuperar tu contraseña</string>
+    <string name="recuperar_error_formato_correo">Ingresa un correo electrónico válido</string>
 
     <!-- inicio -->
     <string name="inicio_bienvenida">Hola de nuevo</string>
@@ -53,5 +56,6 @@
     <string name="escribir_boton_reproducir">Reproducir en voz alta</string>
     <string name="escribir_boton_detener">Detener</string>
     <string name="escribir_error_vacio">Escribe un mensaje antes de reproducirlo</string>
+    <string name="escribir_error_reproduccion">No se pudo reproducir el mensaje en este dispositivo</string>
     <string name="escribir_volver">Volver al inicio</string>
 </resources>

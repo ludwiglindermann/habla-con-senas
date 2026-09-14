@@ -44,6 +44,7 @@ import com.duoc.hablaconsenas.R
 import com.duoc.hablaconsenas.data.UsuariosData
 import com.duoc.hablaconsenas.model.Usuario
 import com.duoc.hablaconsenas.ui.components.CampoTexto
+import com.duoc.hablaconsenas.util.esCorreoValido
 import kotlinx.coroutines.launch
 
 private val opcionesNivelAuditivo = listOf("Leve", "Moderada", "Severa", "Profunda")
@@ -82,6 +83,7 @@ fun RegistroScreen(
     val errorPassword = stringResource(R.string.registro_error_password)
     val errorTerminos = stringResource(R.string.registro_error_terminos)
     val errorExistente = stringResource(R.string.registro_error_existente)
+    val errorFormatoCorreo = stringResource(R.string.registro_error_formato_correo)
     val mensajeExito = stringResource(R.string.registro_exito)
 
     Scaffold(
@@ -253,10 +255,15 @@ fun RegistroScreen(
 
             Button(
                 onClick = {
+                    // esCorreoValido() es la funcion de extension de util/Validaciones.kt
                     when {
                         nombre.isBlank() || email.isBlank() || password.isBlank() || confirmarPassword.isBlank() -> {
                             mostrarError = true
                             scope.launch { snackbarHostState.showSnackbar(errorCampos) }
+                        }
+                        !email.esCorreoValido() -> {
+                            mostrarError = true
+                            scope.launch { snackbarHostState.showSnackbar(errorFormatoCorreo) }
                         }
                         password != confirmarPassword -> {
                             mostrarError = true

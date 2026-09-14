@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.duoc.hablaconsenas.R
 import com.duoc.hablaconsenas.data.UsuariosData
 import com.duoc.hablaconsenas.ui.components.CampoTexto
+import com.duoc.hablaconsenas.util.esCorreoValido
 import kotlinx.coroutines.launch
 
 // pantalla de inicio de sesion, valida contra el arreglo de usuarios registrados
@@ -48,6 +49,7 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val errorCredenciales = stringResource(R.string.login_error_credenciales)
+    val errorFormatoCorreo = stringResource(R.string.login_error_formato_correo)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -117,13 +119,17 @@ fun LoginScreen(
 
             Button(
                 onClick = {
-                    // se valida el correo y contraseña contra el arreglo de usuarios registrados
-                    val usuarioValido = UsuariosData.validar(email, password)
-                    if (usuarioValido) {
-                        onLoginExitoso()
-                    } else {
-                        mostrarError = true
-                        scope.launch { snackbarHostState.showSnackbar(errorCredenciales) }
+                    // esCorreoValido() es la funcion de extension de util/Validaciones.kt
+                    when {
+                        !email.esCorreoValido() -> {
+                            mostrarError = true
+                            scope.launch { snackbarHostState.showSnackbar(errorFormatoCorreo) }
+                        }
+                        !UsuariosData.validar(email, password) -> {
+                            mostrarError = true
+                            scope.launch { snackbarHostState.showSnackbar(errorCredenciales) }
+                        }
+                        else -> onLoginExitoso()
                     }
                 },
                 modifier = Modifier
