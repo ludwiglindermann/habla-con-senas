@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "33366463115",
+    "firebase_url": "https://habla-con-senas-default-rtdb.firebaseio.com",
+    "project_id": "habla-con-senas",
+    "storage_bucket": "habla-con-senas.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:33366463115:android:92aeafa1fc21646aef3a8e",
+        "android_client_info": {
+          "package_name": "com.duoc.hablaconsenas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC5dx0uuSnc_B9zz7j4W4XNITicstYkkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

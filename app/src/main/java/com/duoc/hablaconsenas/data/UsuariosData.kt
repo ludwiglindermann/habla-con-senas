@@ -1,31 +1,72 @@
 package com.duoc.hablaconsenas.data
 
-import androidx.compose.runtime.mutableStateListOf
 import com.duoc.hablaconsenas.model.Usuario
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
+// Antes los usuarios estaban en un arreglo en memoria y se perdian al cerrar
+// la app. Ahora las cuentas las maneja Firebase Authentication y los datos
+// del perfil quedan guardados en Realtime Database bajo el uid de cada usuario
 object UsuariosData {
 
-    // arreglo con los 5 usuarios de ejemplo que pide la actividad, definidos desde el registro
-    val usuariosBase: Array<Usuario> = arrayOf(
-        Usuario("Javiera Muñoz", "javiera.munoz@gmail.com", "Javi2024", "Moderada", "Lengua de señas"),
-        Usuario("Benjamín Rojas", "benjamin.rojas@gmail.com", "Rojas123", "Severa", "Texto escrito"),
-        Usuario("Camila Torres", "camila.torres@gmail.com", "Camila99", "Leve", "Lectura labial"),
-        Usuario("Matías Soto", "matias.soto@gmail.com", "Soto2024", "Profunda", "Lengua de señas"),
-        Usuario("Valentina Pérez", "valentina.perez@gmail.com", "Valen456", "Moderada", "Texto escrito")
-    )
+    private val auth = FirebaseAuth.getInstance()
+    // by lazy: la base de datos se conecta recien la primera vez que se usa
+    private val referenciaUsuarios by lazy { FirebaseDatabase.getInstance().reference.child("usuarios") }
 
-    // lista mutable que parte con los usuarios base y permite sumar nuevos registros durante la sesion
-    val usuarios = mutableStateListOf(*usuariosBase)
-
-    fun registrar(usuario: Usuario) {
-        usuarios.add(usuario)
+    // crea la cuenta y guarda el perfil (nombre, nivel auditivo y modo de comunicacion).
+    // La contraseña no se guarda en la base de datos, de eso se encarga Firebase Auth
+    fun registrar(usuario: Usuario, alTerminar: (exito: Boolean) -> Unit) {
+        auth.createUserWithEmailAndPassword(usuario.email, usuario.password)
+            .addOnSuccessListener { resultado ->
+                val uid = resultado.user?.uid
+                if (uid == null) {
+                    alTerminar(false)
+                    return@addOnSuccessListener
+                }
+                val perfil = mapOf(
+                    "nombre" to usuario.nombre,
+                    "nivelAuditivo" to usuario.nivelAuditivo,
+                    "modoComunicacion" to usuario.modoComunicacion
+                )
+                referenciaUsuarios.child(uid).child("perfil").setValue(perfil)
+                    .addOnCompleteListener { tarea ->
+                        // Firebase deja la sesion abierta al crear la cuenta; se cierra
+                        // para que el usuario entre desde el login como cualquier otro
+                        auth.signOut()
+                        alTerminar(tarea.isSuccessful)
+                    }
+            }
+            .addOnFailureListener { alTerminar(false) }
     }
 
-    fun existeCorreo(email: String): Boolean {
-        return usuarios.any { it.email.equals(email, ignoreCase = true) }
+    // valida correo y contraseña con Firebase Auth y busca el nombre del perfil
+    fun iniciarSesion(email: String, password: String, alTerminar: (exito: Boolean, nombre: String) -> Unit) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { resultado ->
+                val uid = resultado.user?.uid
+                if (uid == null) {
+                    alTerminar(true, "")
+                    return@addOnSuccessListener
+                }
+                referenciaUsuarios.child(uid).child("perfil").child("nombre").get()
+                    .addOnSuccessListener { snapshot ->
+                        alTerminar(true, snapshot.getValue(String::class.java).orEmpty())
+                    }
+                    .addOnFailureListener { alTerminar(true, "") }
+            }
+            .addOnFailureListener { alTerminar(false, "") }
     }
 
-    fun validar(email: String, password: String): Boolean {
-        return usuarios.any { it.email.equals(email, ignoreCase = true) && it.password == password }
+    // envia el correo real de recuperacion de Firebase Auth
+    fun enviarCorreoRecuperacion(email: String, alTerminar: (exito: Boolean) -> Unit) {
+        auth.sendPasswordResetEmail(email)
+            .addOnSuccessListener { alTerminar(true) }
+            .addOnFailureListener { alTerminar(false) }
+    }
+
+    fun haySesionActiva(): Boolean = auth.currentUser != null
+
+    fun cerrarSesion() {
+        auth.signOut()
     }
 }

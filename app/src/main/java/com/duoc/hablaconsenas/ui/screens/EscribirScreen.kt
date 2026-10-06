@@ -10,12 +10,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.BookmarkAdd
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,52 +40,35 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.duoc.hablaconsenas.R
+import com.duoc.hablaconsenas.data.FrasesData
+import com.duoc.hablaconsenas.ui.components.rememberTextToSpeech
 import com.duoc.hablaconsenas.util.ejecutarSeguro
+import com.duoc.hablaconsenas.util.esFraseValida
 import kotlinx.coroutines.launch
-import java.util.Locale
 
-// pantalla que convierte el texto escrito en voz, usando el motor TextToSpeech nativo de Android
+// pantalla que convierte el texto escrito en voz, usando el motor TextToSpeech nativo de Android.
+// Desde aca tambien se puede guardar el mensaje como frase para usarlo despues
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EscribirScreen(
     onVolver: () -> Unit
 ) {
-    val context = LocalContext.current
     var mensaje by remember { mutableStateOf("") }
     var velocidad by remember { mutableFloatStateOf(1f) }
+    var guardando by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val errorVacio = stringResource(R.string.escribir_error_vacio)
     val errorReproduccion = stringResource(R.string.escribir_error_reproduccion)
+    val errorFrase = stringResource(R.string.frases_error_invalida)
+    val fraseGuardada = stringResource(R.string.escribir_frase_guardada)
+    val errorGuardar = stringResource(R.string.frases_error_conexion)
 
-    // se crea el motor de texto a voz cuando entramos a la pantalla y se libera al salir
-    var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
-    DisposableEffect(Unit) {
-        lateinit var instancia: TextToSpeech
-        instancia = TextToSpeech(context) { estado ->
-            if (estado == TextToSpeech.SUCCESS) {
-                // si el idioma configurado no esta disponible en el dispositivo,
-                // se usa el idioma por defecto del sistema como respaldo
-                val resultadoIdioma = instancia.setLanguage(Locale("es", "CL"))
-                if (resultadoIdioma == TextToSpeech.LANG_MISSING_DATA ||
-                    resultadoIdioma == TextToSpeech.LANG_NOT_SUPPORTED
-                ) {
-                    instancia.setLanguage(Locale.getDefault())
-                }
-            }
-        }
-        textToSpeech = instancia
-
-        onDispose {
-            instancia.stop()
-            instancia.shutdown()
-        }
-    }
+    val textToSpeech = rememberTextToSpeech()
 
     Scaffold(
         topBar = {
@@ -104,6 +90,7 @@ fun EscribirScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
                 .padding(24.dp)
         ) {
             OutlinedTextField(
@@ -165,6 +152,33 @@ fun EscribirScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(text = stringResource(R.string.escribir_boton_detener))
                 }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // guarda el mensaje en Firebase para encontrarlo despues en "Mis frases"
+            FilledTonalButton(
+                onClick = {
+                    if (!mensaje.esFraseValida()) {
+                        scope.launch { snackbarHostState.showSnackbar(errorFrase) }
+                    } else {
+                        guardando = true
+                        FrasesData.agregar(mensaje) { exito ->
+                            guardando = false
+                            scope.launch {
+                                snackbarHostState.showSnackbar(if (exito) fraseGuardada else errorGuardar)
+                            }
+                        }
+                    }
+                },
+                enabled = !guardando,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            ) {
+                Icon(Icons.Filled.BookmarkAdd, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(R.string.escribir_boton_guardar))
             }
         }
     }

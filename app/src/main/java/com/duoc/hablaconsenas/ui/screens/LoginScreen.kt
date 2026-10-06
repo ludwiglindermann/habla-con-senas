@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -24,18 +26,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.duoc.hablaconsenas.R
+import com.duoc.hablaconsenas.data.SesionData
 import com.duoc.hablaconsenas.data.UsuariosData
 import com.duoc.hablaconsenas.ui.components.CampoTexto
 import com.duoc.hablaconsenas.util.esCorreoValido
 import kotlinx.coroutines.launch
 
-// pantalla de inicio de sesion, valida contra el arreglo de usuarios registrados
+// pantalla de inicio de sesion, valida las credenciales con Firebase Authentication
 @Composable
 fun LoginScreen(
     onLoginExitoso: () -> Unit,
@@ -45,7 +49,9 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var mostrarError by remember { mutableStateOf(false) }
+    var cargando by remember { mutableStateOf(false) }
 
+    val contexto = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val errorCredenciales = stringResource(R.string.login_error_credenciales)
@@ -125,18 +131,37 @@ fun LoginScreen(
                             mostrarError = true
                             scope.launch { snackbarHostState.showSnackbar(errorFormatoCorreo) }
                         }
-                        !UsuariosData.validar(email, password) -> {
+                        password.isBlank() -> {
                             mostrarError = true
                             scope.launch { snackbarHostState.showSnackbar(errorCredenciales) }
                         }
-                        else -> onLoginExitoso()
+                        else -> {
+                            // la respuesta de Firebase llega despues, en el callback
+                            cargando = true
+                            UsuariosData.iniciarSesion(email, password) { exito, nombre ->
+                                cargando = false
+                                if (exito) {
+                                    // se guardan los datos de la sesion en SharedPreferences
+                                    SesionData.guardar(contexto, nombre, email)
+                                    onLoginExitoso()
+                                } else {
+                                    mostrarError = true
+                                    scope.launch { snackbarHostState.showSnackbar(errorCredenciales) }
+                                }
+                            }
+                        }
                     }
                 },
+                enabled = !cargando,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text(text = stringResource(R.string.login_boton))
+                if (cargando) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                } else {
+                    Text(text = stringResource(R.string.login_boton))
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

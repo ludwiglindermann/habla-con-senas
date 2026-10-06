@@ -28,10 +28,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.duoc.hablaconsenas.R
+import com.duoc.hablaconsenas.data.UsuariosData
 import com.duoc.hablaconsenas.ui.components.CampoTexto
 import com.duoc.hablaconsenas.util.esCorreoValido
 
-// pantalla de recuperar contraseña
+// pantalla de recuperar contraseña: envia el correo real de Firebase Authentication
 @Composable
 fun RecuperarPasswordScreen(
     onVolverALogin: () -> Unit
@@ -86,7 +87,11 @@ fun RecuperarPasswordScreen(
                     onClick = {
                         // esCorreoValido() es la funcion de extension de util/Validaciones.kt
                         if (email.esCorreoValido()) {
-                            solicitudEnviada = true
+                            // se muestra la misma confirmacion exista o no la cuenta,
+                            // para no revelar que correos estan registrados
+                            UsuariosData.enviarCorreoRecuperacion(email) {
+                                solicitudEnviada = true
+                            }
                         } else {
                             mostrarError = true
                         }

@@ -28,7 +28,8 @@
     <string name="registro_error_campos">Completa todos los campos obligatorios</string>
     <string name="registro_error_password">Las contraseñas no coinciden</string>
     <string name="registro_error_terminos">Debes aceptar los términos y condiciones</string>
-    <string name="registro_error_existente">Ya existe una cuenta registrada con ese correo</string>
+    <string name="registro_error_existente">No se pudo crear la cuenta. Puede que ese correo ya esté registrado</string>
+    <string name="registro_error_password_corta">La contraseña debe tener al menos 6 caracteres</string>
     <string name="registro_error_formato_correo">Ingresa un correo electrónico válido</string>
     <string name="registro_exito">Cuenta creada con éxito, ya puedes iniciar sesión</string>
 
@@ -42,9 +43,12 @@
 
     <!-- inicio -->
     <string name="inicio_bienvenida">Hola de nuevo</string>
+    <string name="inicio_bienvenida_nombre">Hola, %1$s</string>
     <string name="inicio_subtitulo">¿Qué necesitas hacer hoy?</string>
     <string name="inicio_escribir_titulo">Escribir para que te escuchen</string>
     <string name="inicio_escribir_descripcion">Escribe un mensaje y tu celular lo dice en voz alta por ti</string>
+    <string name="inicio_frases_titulo">Mis frases</string>
+    <string name="inicio_frases_descripcion">Las frases que más usas, listas para decirlas con un toque</string>
     <string name="inicio_escuchar_titulo">Escuchar y transcribir</string>
     <string name="inicio_escuchar_descripcion">Próximamente: convierte lo que te dicen en texto en pantalla</string>
     <string name="inicio_cerrar_sesion">Cerrar sesión</string>
@@ -58,4 +62,20 @@
     <string name="escribir_error_vacio">Escribe un mensaje antes de reproducirlo</string>
     <string name="escribir_error_reproduccion">No se pudo reproducir el mensaje en este dispositivo</string>
     <string name="escribir_volver">Volver al inicio</string>
+    <string name="escribir_boton_guardar">Guardar en mis frases</string>
+    <string name="escribir_frase_guardada">Frase guardada en Mis frases</string>
+
+    <!-- frases guardadas -->
+    <string name="frases_titulo">Mis frases</string>
+    <string name="frases_campo_nueva">Nueva frase</string>
+    <string name="frases_boton_agregar">Agregar frase</string>
+    <string name="frases_vacio">Todavía no tienes frases guardadas. Agrega las que más usas, por ejemplo \"Necesito ayuda\"</string>
+    <string name="frases_reproducir">Reproducir frase</string>
+    <string name="frases_editar_titulo">Editar frase</string>
+    <string name="frases_eliminar_titulo">¿Eliminar esta frase?</string>
+    <string name="frases_eliminar">Eliminar</string>
+    <string name="frases_guardar">Guardar</string>
+    <string name="frases_cancelar">Cancelar</string>
+    <string name="frases_error_invalida">La frase no puede estar vacía ni tener más de 120 caracteres</string>
+    <string name="frases_error_conexion">No se pudo guardar el cambio, revisa tu conexión a internet</string>
 </resources>

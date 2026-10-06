@@ -17,3 +17,6 @@ local.properties
 /app/release
 *.apk
 *.aab
+# llave de firma del APK, no se sube al repositorio
+*.jks
+*.keystore

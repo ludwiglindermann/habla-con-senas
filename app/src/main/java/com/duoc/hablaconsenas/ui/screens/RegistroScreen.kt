@@ -1,5 +1,6 @@
 package com.duoc.hablaconsenas.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -35,6 +38,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +49,7 @@ import com.duoc.hablaconsenas.data.UsuariosData
 import com.duoc.hablaconsenas.model.Usuario
 import com.duoc.hablaconsenas.ui.components.CampoTexto
 import com.duoc.hablaconsenas.util.esCorreoValido
+import com.duoc.hablaconsenas.util.esPasswordSegura
 import kotlinx.coroutines.launch
 
 private val opcionesNivelAuditivo = listOf("Leve", "Moderada", "Severa", "Profunda")
@@ -55,7 +60,7 @@ private val opcionesFuncionesAccesibilidad = listOf(
     "Aviso visual de sonidos"
 )
 
-// pantalla de registro: crea un nuevo usuario y lo agrega al arreglo de usuarios
+// pantalla de registro: crea la cuenta en Firebase Authentication y guarda el perfil en Realtime Database
 @Composable
 fun RegistroScreen(
     onRegistroExitoso: () -> Unit,
@@ -75,7 +80,9 @@ fun RegistroScreen(
 
     var aceptaTerminos by remember { mutableStateOf(false) }
     var mostrarError by remember { mutableStateOf(false) }
+    var cargando by remember { mutableStateOf(false) }
 
+    val contexto = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -84,6 +91,7 @@ fun RegistroScreen(
     val errorTerminos = stringResource(R.string.registro_error_terminos)
     val errorExistente = stringResource(R.string.registro_error_existente)
     val errorFormatoCorreo = stringResource(R.string.registro_error_formato_correo)
+    val errorPasswordCorta = stringResource(R.string.registro_error_password_corta)
     val mensajeExito = stringResource(R.string.registro_exito)
 
     Scaffold(
@@ -265,6 +273,10 @@ fun RegistroScreen(
                             mostrarError = true
                             scope.launch { snackbarHostState.showSnackbar(errorFormatoCorreo) }
                         }
+                        !password.esPasswordSegura() -> {
+                            mostrarError = true
+                            scope.launch { snackbarHostState.showSnackbar(errorPasswordCorta) }
+                        }
                         password != confirmarPassword -> {
                             mostrarError = true
                             scope.launch { snackbarHostState.showSnackbar(errorPassword) }
@@ -272,11 +284,10 @@ fun RegistroScreen(
                         !aceptaTerminos -> {
                             scope.launch { snackbarHostState.showSnackbar(errorTerminos) }
                         }
-                        UsuariosData.existeCorreo(email) -> {
-                            scope.launch { snackbarHostState.showSnackbar(errorExistente) }
-                        }
                         else -> {
-                            // se agrega el nuevo usuario al arreglo para que quede disponible en el login
+                            // ya no se revisa el correo repetido en una lista local: si el
+                            // correo ya tiene cuenta, Firebase responde con error
+                            cargando = true
                             UsuariosData.registrar(
                                 Usuario(
                                     nombre = nombre,
@@ -285,17 +296,30 @@ fun RegistroScreen(
                                     nivelAuditivo = nivelAuditivoSeleccionado,
                                     modoComunicacion = modoComunicacionSeleccionado
                                 )
-                            )
-                            scope.launch { snackbarHostState.showSnackbar(mensajeExito) }
-                            onRegistroExitoso()
+                            ) { exito ->
+                                cargando = false
+                                if (exito) {
+                                    // Toast en vez de snackbar: esta pantalla se cierra al volver
+                                    // al login y el snackbar alcanzaba a desaparecer sin verse
+                                    Toast.makeText(contexto, mensajeExito, Toast.LENGTH_LONG).show()
+                                    onRegistroExitoso()
+                                } else {
+                                    scope.launch { snackbarHostState.showSnackbar(errorExistente) }
+                                }
+                            }
                         }
                     }
                 },
+                enabled = !cargando,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text(text = stringResource(R.string.registro_boton))
+                if (cargando) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                } else {
+                    Text(text = stringResource(R.string.registro_boton))
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))

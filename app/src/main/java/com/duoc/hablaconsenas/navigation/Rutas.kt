@@ -7,4 +7,5 @@ object Rutas {
     const val RECUPERAR = "recuperar"
     const val INICIO = "inicio"
     const val ESCRIBIR = "escribir"
+    const val FRASES = "frases"
 }

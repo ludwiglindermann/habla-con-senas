@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- se usa para validar credenciales contra un backend en el futuro y sincronizar datos -->
+    <!-- necesaria para conectarse a Firebase (inicio de sesion y frases guardadas) -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
